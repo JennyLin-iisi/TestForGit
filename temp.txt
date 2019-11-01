@@ -1,0 +1,521 @@
+【Git 技術教育訓練】實作環境準備
+為了讓大家可以在課堂中順利的進行操作
+請大家在教育訓練前把需要的軟體安裝好
+以下是需要安裝的相關軟體
+
+[ 版控工具 ]
+命令提示字元工具
+Git
+參考網站  https://git-scm.com/book/zh-tw/v1/開始-安裝-Git
+ 
+圖形化操作介面工具
+Sourcetree (Windows/macOS)
+參考網站  https://www.sourcetreeapp.com
+步驟參考  https://ithelp.ithome.com.tw/m/articles/10206852
+
+[ 註冊 GitHub 帳號 ]
+如果還沒註冊 GitHub 帳號的同仁，請在教育訓練前先註冊帳號
+如果已經忘記 GitHub 密碼的同仁，請在教育訓練前先查詢並重置你的密碼
+參考網站  https://progressbar.tw/posts/3 (註冊完就可以)
+
+
+
+
+
+
+
+繁簡處理
+方式 A
+        internal const int LOCALE_SYSTEM_DEFAULT = 0x0800;
+        internal const int LCMAP_SIMPLIFIED_CHINESE = 0x02000000;
+        internal const int LCMAP_TRADITIONAL_CHINESE = 0x04000000;
+
+        [System.Runtime.InteropServices.DllImport("kernel32", CharSet = System.Runtime.InteropServices.CharSet.Auto, SetLastError = true)]
+        internal static extern int LCMapString(int Locale, int dwMapFlags, string lpSrcStr, int cchSrc, [System.Runtime.InteropServices.Out] string lpDestStr, int cchDest);
+
+ public static string ToTraditional(string source)
+    {
+        String target = new String(' ', source.Length);
+        int ret = LCMapString(LOCALE_SYSTEM_DEFAULT, LCMAP_TRADITIONAL_CHINESE, source, source.Length, target, source.Length);
+        return target;
+    }
+
+
+
+	            var ncrString = toNCR(text);
+            var convString = Microsoft.VisualBasic.Strings.StrConv(ncrString, Microsoft.VisualBasic.VbStrConv.Narrow, 1028);
+            printString = fromNCR(convString);
+	
+	 static string toNCR(string input)
+    {  
+      StringBuilder sb = new StringBuilder();
+      Encoding big5 = Encoding.GetEncoding("big5");
+      foreach (char c in input)
+      {
+        //強迫轉碼成Big5，看會不會變成問號
+        string cInBig5 = big5.GetString(big5.GetBytes(new char[] {c}));
+        //原來不是問號，轉碼後變問號，判定為難字
+        if (c!='?' && cInBig5=="?")
+          sb.AppendFormat("&#{0};", Convert.ToInt32(c));
+        else
+          sb.Append(c);
+      }
+      return sb.ToString();
+    }
+ 
+    static string fromNCR(string input)
+    {
+      return Regex.Replace(input, "&#(?<ncr>\\d+?);", (m) =>
+      {
+        return Convert.ToChar(int.Parse(m.Groups["ncr"].Value)).ToString();
+      });
+    }
+	
+
+DECLARE @OUTPUT VARCHAR(500)
+EXEC dbo.SP_GetTableName '資料表名稱','yyyymmdd',@OUTPUT output
+PRINT @OUTPUT
+
+ async="true"
+
+
+
+
+
+
+已退票的是否還會從OCR那邊新增？
+
+    <!--<add name="COGDB2" connectionString="Data Source=(localdb)\Projects;Initial Catalog=COGDB2;Integrated Security=True;Persist Security Info=False;Encrypt=False;TrustServerCertificate=True" providerName="System.Data.SqlClient" />-->
+    <!--<add name="COGDB2" connectionString="Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=D:\Work\WG\資料傳輸\COGDB2.mdf;Integrated Security=True" providerName="System.Data.SqlClient" />-->
+
+
+                order: [[2,"asc"]], // [[ 3, "desc" ]]
+	
+	
+確認OA給的金額是否會含匯費
+
+1.	A1(支票)/A2(一般電匯)工作指示單legal fee 的GL/RC 的態樣
+Card : "GL:5032310000 RC:8810"
+Loan: 1. 入貸編 l/f，2. "GL:5032310000 RC:8810" (GL/RC 是否可以自行輸入)
+
+
+
+ALTER TABLE [dbo].[NWG_CASE_CLOSE] ALTER COLUMN [ITEMS] VARCHAR (100) NULL;
+
+
+GO
+BEGIN TRANSACTION;
+
+SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+
+SET XACT_ABORT ON;
+
+CREATE TABLE [dbo].[tmp_ms_xx_NWG_OCA_UNIT] (
+    [UNIT_SN]        VARCHAR (10)   NULL,
+    [UNIT_NAME]      NVARCHAR (60)  NULL,
+    [OA_CODE]        VARCHAR (4)    NULL,
+    [ZIP_CODE]       VARCHAR (3)    NULL,
+    [ADDRESS]        NVARCHAR (100) NULL,
+    [IS_REPLY]       BIT            NULL,
+    [LETTER_CODE]    VARCHAR (16)   NULL,
+    [CONTRACT_NAME]  NVARCHAR (60)  NULL,
+    [CREATE_TIME]    DATETIME       NULL,
+    [CREATE_USER_ID] VARCHAR (10)   NULL,
+    [MODIFY_TIME]    DATETIME       NULL,
+    [MODIFY_USER_ID] VARCHAR (10)   NULL
+);
+
+IF EXISTS (SELECT TOP 1 1 
+           FROM   [dbo].[NWG_OCA_UNIT])
+    BEGIN
+        INSERT INTO [dbo].[tmp_ms_xx_NWG_OCA_UNIT] ([UNIT_SN], [UNIT_NAME], [OA_CODE], [ZIP_CODE], [ADDRESS], [IS_REPLY], [LETTER_CODE], [CREATE_TIME], [CREATE_USER_ID], [MODIFY_TIME], [MODIFY_USER_ID])
+        SELECT [UNIT_SN],
+               [UNIT_NAME],
+               [OA_CODE],
+               [ZIP_CODE],
+               [ADDRESS],
+               [IS_REPLY],
+               [LETTER_CODE],
+               [CREATE_TIME],
+               [CREATE_USER_ID],
+               [MODIFY_TIME],
+               [MODIFY_USER_ID]
+        FROM   [dbo].[NWG_OCA_UNIT];
+    END
+
+DROP TABLE [dbo].[NWG_OCA_UNIT];
+
+EXECUTE sp_rename N'[dbo].[tmp_ms_xx_NWG_OCA_UNIT]', N'NWG_OCA_UNIT';
+
+COMMIT TRANSACTION;
+
+SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+ALTER TABLE NWG_LETTER_HISTORY ADD TEMPLATE_SN char(5) NOT NULL
+EXEC sp_addextendedproperty 'MS_Description', '樣版序號', 'SCHEMA', 'dbo', 'TABLE', 'NWG_LETTER_HISTORY', 'COLUMN', 'TEMPLATE_SN'
+ALTER TABLE NWG_LETTER_HISTORY ADD "VERSION" char(3) NOT NULL
+EXEC sp_addextendedproperty 'MS_Description', '樣版版本', 'SCHEMA', 'dbo', 'TABLE', 'NWG_LETTER_HISTORY', 'COLUMN', 'VERSION'
+
+
+
+                        ICell cell = row.GetCell(j);
+                        if (cell == null)
+                        {
+                            dataRow[j] = null;
+                        }
+                        else
+                        {
+                            //dataRow[j] = cell.ToString();   
+                            switch (cell.CellType)
+                            {
+                                case CellType.Blank:
+                                    dataRow[j] = null;
+                                    break;
+                                case CellType.Boolean:
+                                    dataRow[j] = cell.BooleanCellValue;
+                                    break;
+                                case CellType.Numeric:
+                                    dataRow[j] = cell.ToString();
+                                    break;
+                                case CellType.String:
+                                    dataRow[j] = cell.StringCellValue;
+                                    break;
+                                case CellType.Error:
+                                    dataRow[j] = cell.ErrorCellValue;
+                                    break;
+                                case CellType.Formula:
+                                default:
+                                    dataRow[j] = "=" + cell.CellFormula;
+                                    break;
+                            }
+                        }
+
+
+
+Excel 匯出
+ try
+ {
+   using (var adventureWorks = new AdventureWorksEntities())
+   {
+      var product = adventureWorks.Product.Where(x => x.ProductID > 500)
+              .Select(o=> new {o.ProductID,o.ProductNumber,o.ProductLine }).ToList();
+ 
+      ISheet sheet = workbook.CreateSheet("Product");
+ 
+       //設定欄位名稱的cell style
+       var style = workbook.CreateCellStyle();
+       var font = workbook.CreateFont();
+       font.Underline = FontUnderlineType.Single;
+       font.Color = HSSFColor.White.Index;
+       style.SetFont(font);
+       style.FillForegroundColor = HSSFColor.BlueGrey.Index;
+       style.FillPattern = FillPattern.SolidForeground;
+ 
+       var i = 0;
+ 
+       foreach (var item in product)
+       {
+         var j = 0;
+         var row = sheet.CreateRow(i);
+         if (i == 0)
+         {
+           foreach (var property in item.GetType().GetProperties())
+           {
+              var cell= row.CreateCell(j);
+              cell.SetCellValue(property.Name);
+              cell.CellStyle = style;
+              sheet.AutoSizeColumn(j);
+              j++;
+           }
+ 
+            i++;
+            j = 0;
+            row = sheet.CreateRow(i);
+         }
+ 
+          foreach (var property in item.GetType().GetProperties())
+          {
+            row.CreateCell(j).SetCellValue(property.GetValue(item, null)?.ToString());
+            j++;
+           }
+         i++;
+      }
+ 
+      //跳出視窗讓使用著選擇儲存路徑
+       var dialog = new SaveFileDialog();
+       dialog.Title = "Save File";
+       dialog.FileName = "Product.xls";
+       dialog.Filter = "Excel Files(*.xls)|*.xls";
+       var isValid = dialog.ShowDialog();
+ 
+       if(isValid == true)
+       {
+         FileStream file = new FileStream(dialog.FileName, FileMode.Create);
+         workbook.Write(file);
+         file.Close();
+       }
+   }
+ 
+ }
+ catch
+ {
+    throw;
+ }
+ finally
+ {
+      workbook.Close();
+ }
+
+●Excel 讀取
+try
+  {
+     OpenFileDialog dialog = new OpenFileDialog();
+ 
+     dialog.Filter = "Excel Files(*.xls)|*.xls|Excel Files(*.xlsx)|*.xlsx";
+     var isValid = (bool)dialog.ShowDialog();
+ 
+     if (isValid)
+     {
+        IWorkbook workBook;
+        using (var fs = new FileStream(dialog.FileName, FileMode.Open, FileAccess.ReadWrite))
+        {
+          if (Path.GetExtension(dialog.FileName).ToLower() == ".xls")
+          {
+             workBook = new HSSFWorkbook(fs);
+          }
+          else
+          {
+             workBook = new XSSFWorkbook(fs);
+          }
+        }
+ 
+        var sheet = workBook.GetSheet("Product");
+        var products = new List<ProductContent>();
+        for (var i = 0; i < sheet.LastRowNum; i++)
+        {
+          var product = new ProductContent();
+          for (var j = 0; j < sheet.GetRow(0).LastCellNum; j++)
+          {
+             var property = product.GetType().GetProperty(sheet.GetRow(0).GetCell(1).ToString());
+             if (sheet.GetRow(i).GetCell(j).CellType == CellType.Numeric)
+             {
+                property.SetValue(product, sheet.GetRow(i).GetCell(j).NumericCellValue.ToString());
+             }
+             else
+             {
+                property.SetValue(product, sheet.GetRow(i).GetCell(j)?.ToString());
+             }
+          }
+ 
+          products.Add(product);
+        }
+               
+          workBook.Close();
+          MessageBox.Show(dialog.FileName + " 讀取完成!!", "成功", MessageBoxButton.OK, MessageBoxImage.Question);
+      }
+   }
+   catch
+   {
+     throw;
+   }
+
+ var table = $('#tbPayAssign').DataTable();
+        var tableData = $('#tbPayAssign').dataTable();
+        var parents = current.parents('tr');
+        var rowIndex = table.table().row(parents).index();
+        var data = tableData.fnGetData(parents);
+
+        var arrAmt = $('input', table.cell(rowIndex, 5).node()).val();
+        var arrFee = $('input', table.cell(rowIndex, 6).node()).val();
+        if (arrAmt == "") {
+            alert("請先分配金額");
+            return false;
+        }
+        else {
+            arrAmt = parseInt(arrAmt);
+            arrFee = arrFee == "" ? 0 : parseInt(arrFee)
+        }
+        //TODO: 在輸入金額後檢核
+        if (arrAmt + arrFee > dataSet[0].AMOUNT) {
+            alert("分配金額大於支票金額");
+            return false;
+        }
+        //TODO: 確認客戶總對外剩餘債金大於總分配金額，否顯示訊息
+        var wgSn = data.WG_SN;
+        var relID = data.RELATIVE_ID;
+        //$.each(assignDetailDs, function (index, item) {
+        //    if ($.trim(item.RELATIVE_ID) == relID && $.trim(item.WG_SN) == wgSn) {
+        //        console.log(index);
+        //        //分配金額小於剩餘金額
+        //        if (arrAmt < item.SUM_AMT) {
+        //            item.AMOUNT = arrAmt;
+        //            item.LEGAL_FEE = arrFee;
+        //            return false;
+        //        }
+        //        //TODO: 分配金額大於剩餘金額 1.確認有幾個帳號可分配,
+        //        else {
+        //            item.AMOUNT = arrAmt;
+        //            item.LEGAL_FEE = arrFee;
+        //            return false;
+        //        }
+        //    }
+        //})
+        
+         assignDetailDs.filter(function (elem) {
+            if ($.trim(elem.RELATIVE_ID) == relID && $.trim(elem.WG_SN) == wgSn) {
+                console.log(elem);
+                if (arrAmt < elem.SUM_AMT) {
+                    elem.AMOUNT = arrAmt;
+                    elem.LEGAL_FEE = arrFee;
+                    arrAmt = 0;
+                    arrFee = 0;
+                }
+                else if (arrAmt > elem.SUM_AMT) {
+                    elem.AMOUNT = elem.SUM_AMT;
+                    elem.LEGAL_FEE = arrFee;
+                    arrAmt = arrAmt - elem.SUM_AMT;
+                    arrFee = 0;                    
+                }
+            }
+        });
+
+
+
+
+
+
+
+
+
+
+
+
+
+var td = $('#tbPayAssign').DataTable().cell(0,5).node();
+var val = $('input',td);
+val.val();
+
+
+var td = $('#tbPayAssign').DataTable().cell(0,7).node();
+var val = $('select',td);//$('input',td);
+val.val();
+
+
+$('#tbPayAssign').DataTable().table().row( $(this).parents('tr')).index()
+
+tbPayAssignDetail').DataTable().rows().count()
+
+$.each($(this).parents('tr')[0].cells, function(index,item)
+{
+   console.log('--------------------------');
+   console.log(index);
+  console.log(this.innerText);
+item; 
+})
+
+
+
+    //輸入欄位檢核
+    $("[data-check=int][data-map=ARR_AMT]").on("change", function (e) {
+        console.log("change");
+        var current = $(this);
+        var type = current.data("check");
+        var map = current.data("map");
+        console.log(type);
+        console.log(map);
+        if (type == "int") {
+            checkInteger(current.val(), true);
+            current.focus();
+        }
+    });
+
+    function setDateList() {
+        var select = '<select><option value=""></option>';
+        $.each(optionsA, function (i, e) {
+            select += '<option value="' + e.value + '">' + e.label + '</option>';
+        });
+        select += "</select>";
+        return select;
+    }
+
+
+        <th data-column="ProductName">
+		
+    $("[data-column]").click(function (e) {
+        e.preventDefault
+        var current = $(this);
+        var columnName = current.data("column");
+        //var columnName = $(this).data("column");
+        //console.log(columnName);
+		
+
+        /// <summary>
+        /// Returns all distinct elements of the given source, where "distinctness"
+        /// is determined via a projection and the default equality comparer for the projected type.
+        /// </summary>
+        /// <remarks>
+        /// This operator uses deferred execution and streams the results, although
+        /// a set of already-seen keys is retained. If a key is seen multiple times,
+        /// only the first element with that key is returned.
+        /// </remarks>
+        /// <typeparam name="TSource">Type of the source sequence</typeparam>
+        /// <typeparam name="TKey">Type of the projected element</typeparam>
+        /// <param name="source">Source sequence</param>
+        /// <param name="keySelector">Projection for determining "distinctness"</param>
+        /// <returns>A sequence consisting of distinct elements from the source sequence,
+        /// comparing them by the specified key projection.</returns>
+
+        public static IEnumerable<TSource> DistinctBy<TSource, TKey>(this IEnumerable<TSource> source,
+            Func<TSource, TKey> keySelector)
+        {
+            return source.DistinctBy(keySelector, null);
+        }
+
+        /// <summary>
+        /// Returns all distinct elements of the given source, where "distinctness"
+        /// is determined via a projection and the specified comparer for the projected type.
+        /// </summary>
+        /// <remarks>
+        /// This operator uses deferred execution and streams the results, although
+        /// a set of already-seen keys is retained. If a key is seen multiple times,
+        /// only the first element with that key is returned.
+        /// </remarks>
+        /// <typeparam name="TSource">Type of the source sequence</typeparam>
+        /// <typeparam name="TKey">Type of the projected element</typeparam>
+        /// <param name="source">Source sequence</param>
+        /// <param name="keySelector">Projection for determining "distinctness"</param>
+        /// <param name="comparer">The equality comparer to use to determine whether or not keys are equal.
+        /// If null, the default equality comparer for <c>TSource</c> is used.</param>
+        /// <returns>A sequence consisting of distinct elements from the source sequence,
+        /// comparing them by the specified key projection.</returns>
+
+        public static IEnumerable<TSource> DistinctBy<TSource, TKey>(this IEnumerable<TSource> source,
+            Func<TSource, TKey> keySelector, IEqualityComparer<TKey> comparer)
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (keySelector == null) throw new ArgumentNullException(nameof(keySelector));
+
+            return _(); IEnumerable<TSource> _()
+            {
+                var knownKeys = new HashSet<TKey>(comparer);
+                foreach (var element in source)
+                {
+                    if (knownKeys.Add(keySelector(element)))
+                        yield return element;
+                }
+            }
+        }
+		
+		
+		
+        public static IEnumerable<TSource> DistinctBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector)
+        {
+            HashSet<TKey> seenKeys = new HashSet<TKey>();
+            foreach (TSource element in source)
+            {
+                if (seenKeys.Add(keySelector(element)))
+                {
+                    yield return element;
+                }
+            }
+        }
